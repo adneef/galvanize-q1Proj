@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //variables for player health
   let shields
-  let amor
+  let maxShields = 100
+  let armor
   let playerDeath
 
   //game state variables
@@ -195,16 +196,17 @@ document.addEventListener('DOMContentLoaded', function() {
     playerDeath.setAlpha(0.9, 0, 800)
     playerDeath.setScale(0.1, 0.6, 0.1, 0.6, 1000, Phaser.Easing.Quintic.Out)
 
-    //Shields stat
+    //armor stat
     armor = game.add.text(game.world.width - 150, 10, 'Armor: ' + player.health, {font: '20px Impact', fill: '#fff'})
     armor.render = function() {
       armor.text = 'Armor: ' + Math.max(player.health, 0)
     }
     armor.render()
 
-    shields = game.add.text(game.world.width - 150, 35, 'Shields' + player.maxHealth + '%', {font: '20px Impact', fill: '#fff'})
+    //Shields stat
+    shields = game.add.text(game.world.width - 150, 35, 'Shields: ' + maxShields + '%', {font: '20px Impact', fill: '#fff'})
     shields.render = function() {
-      shields.text = 'Shields: ' + Math.max(player.maxHealth, 0) + '%'
+      shields.text = 'Shields: ' + Math.max(maxShields, 0) + '%'
     }
     shields.render()
 
@@ -216,9 +218,8 @@ document.addEventListener('DOMContentLoaded', function() {
     scoreText.render()
 
     //Game Over text
-    // gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {font: '84px Arial', fill: '#fff'})
+    gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {font: '84px Impact', fill: '#fff'})
     // gameOver.anchor.setTo(0.5, 0.5)
-    gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER', 110)
     gameOver.x = gameOver.x - gameOver.textWidth / 2
     gameOver.y = gameOver.y - gameOver.textHeight / 3
     gameOver.visible = false
@@ -306,10 +307,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    // if (player.alive && player.health < player.maxHealth) {
-    //   player.health += 1
-    // }
-    // shields.render()
+    if (maxShields === 0) {
+      function shieldRegen (maxShields) {
+        let timeOutID
+
+      }
+    }
   }
 
   function render() {
@@ -407,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
+
   function launchGreenEnemy() {
 
     let ENEMY_SPEED = 300
@@ -511,8 +515,19 @@ document.addEventListener('DOMContentLoaded', function() {
   function shipCollide(player, enemy) {
     enemy.kill()
 
-    player.damage(enemy.damageAmount)
-    armor.render()
+    let timeoutId
+    clearTimeout(timeoutId)
+
+    // shields break on ship collide
+    if (maxShields > 0) {
+      maxShields = 0
+      timeoutId = setTimeout(shieldRegen, 2000)
+      shields.render()
+    }
+    else if (maxShields === 0) {
+      player.damage(enemy.damageAmount)
+      armor.render()
+    }
 
     if (player.alive) {
       let explosion = explosions.getFirstExists(false)
@@ -591,6 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
     player.revive()
     player.health = 100
     armor.render()
+    shields.render()
     score = 0
     scoreText.render()
 
@@ -599,5 +615,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     greenEnemySpacing = 1000
     blueEnemyLaunched = false
+  }
+
+  //functions for shield regen
+  function shieldRegen() {
+    maxShields = 0
+    let intervalID = setInterval(function(){
+      if(maxShields < 100){
+        maxShields += 5
+        shields.render()
+      } else {
+        clearInterval(intervalID)
+      }
+    }, 100)
   }
 })
