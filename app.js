@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let MAXSPEED = 400;
 
   //variables for effects
+  let blueLasers
   let bank
   let bullets
   let bulletTimer = 0
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
     game.load.image('blueEnemyBullet', 'assets/enemy-blue-bullet.png')
     game.load.image('enemy-blue', 'assets/enemy-blue.png')
     game.load.spritesheet('explosion', 'assets/explode.png', 128, 128)
-    game.load.bitmapFont('spacefont', 'assets/spacefont.png', 'https://rawgit.com/jschomay/phaser-demo-game/master/assets/spacefont/spacefont.xml')
+    game.load.image('blue-laser', 'newAssets/blue-bullet.png')
   }
 
   function create() {
@@ -73,7 +74,17 @@ document.addEventListener('DOMContentLoaded', function() {
     //Scrolling starfield
     starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
 
-    //Bullet pool
+    //Blue laser pool - weapon level 1
+    blueLasers = game.add.group()
+    blueLasers.enableBody = true
+    blueLasers.physicsBodyType = Phaser.Physics.ARCADE
+    blueLasers.createMultiple(30, 'blue-laser')
+    blueLasers.setAll('anchor.x', 0.5)
+    blueLasers.setAll('anchor.y', 1)
+    blueLasers.setAll('outOfBoundsKill', true)
+    blueLasers.setAll('checkWorldBounds', true)
+
+    //Bullet pool - now only for player ship emitter
     bullets = game.add.group()
     bullets.enableBody = true
     bullets.physicsBodyType = Phaser.Physics.ARCADE
@@ -222,8 +233,6 @@ document.addEventListener('DOMContentLoaded', function() {
     //Game Over text
     gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {font: '84px Impact', fill: '#fff'})
     gameOver.anchor.setTo(0.5, 0.5)
-    // gameOver.x = gameOver.x - gameOver.textWidth / 2
-    // gameOver.y = gameOver.y - gameOver.textHeight / 3
     gameOver.visible = false
   }
 
@@ -279,14 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
     //Check collisions
     game.physics.arcade.overlap(player, greenEnemies, shipCollide, null, this)
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this)
+    game.physics.arcade.overlap(greenEnemies, blueLasers, hitEnemy, null, this)
 
     game.physics.arcade.overlap(player, blueEnemies, shipCollide, null, this);
     game.physics.arcade.overlap(blueEnemies, bullets, hitEnemy, null, this);
-
-    // if (shipCollide()) {
-    //   clearTimeout(timeoutID)
-    //   setInterval(shieldRegen, 3000)
-    // }
+    game.physics.arcade.overlap(blueEnemies, blueLasers, hitEnemy, null, this);
 
     //blue enemy bullet collision
     game.physics.arcade.overlap(blueEnemyBullets, player, enemyHitsPlayer, null, this)
@@ -341,78 +347,78 @@ document.addEventListener('DOMContentLoaded', function() {
         let BULLET_SPACING = 250
 
         //grab the first bullet from the pool
-        let bullet = bullets.getFirstExists(false)
+        let blueLaser = blueLasers.getFirstExists(false)
 
-        if (bullet) {
+        if (blueLaser) {
 
           //then fire
 
           //do math to make bullets fire at correct angle from tip of ship
           let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-          bullet.reset(player.x + bulletOffset, player.y)
-          bullet.angle = player.angle
-          game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET_SPEED, bullet.body.velocity)
-          bullet.body.velocity.x += player.body.velocity.x
+          blueLaser.reset(player.x + bulletOffset, player.y)
+          blueLaser.angle = player.angle
+          game.physics.arcade.velocityFromAngle(blueLaser.angle - 90, BULLET_SPEED, blueLaser.body.velocity)
+          blueLaser.body.velocity.x += player.body.velocity.x
 
           bulletTimer = game.time.now + BULLET_SPACING
         }
       }
       break;
-      case 2:
-      //tri-shot
-      if (game.time.now > bulletTimer) {
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 250
-
-        for (let i = 0; i < 3; i++){
-          let bullet = bullets.getFirstExists(false)
-          if (bullet){
-
-            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            bullet.reset(player.x + bulletOffset, player.y)
-
-            //create 'spread' for first and third bullets
-            let spreadAngle
-            if (i === 0) spreadAngle = -20
-            if (i === 1) spreadAngle = 0
-            if (i === 2) spreadAngle = 20
-
-            bullet.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
-            bullet.body.velocity.x += player.body.velocity.x
-
-            bulletTimer = game.time.now + BULLET_SPACING
-          }
-        }
-      }
-      break;
-      case 3:
-      //rapid tri-shot
-      if (game.time.now > bulletTimer) {
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 100
-
-        for (let i = 0; i < 3; i++){
-          let bullet = bullets.getFirstExists(false)
-          if (bullet){
-
-            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            bullet.reset(player.x + bulletOffset, player.y)
-
-            //create 'spread' for first and third bullets
-            let spreadAngle
-            if (i === 0) spreadAngle = -20
-            if (i === 1) spreadAngle = 0
-            if (i === 2) spreadAngle = 20
-
-            bullet.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
-            bullet.body.velocity.x += player.body.velocity.x
-
-            bulletTimer = game.time.now + BULLET_SPACING
-          }
-        }
-      }
+      // case 2:
+      // //tri-shot
+      // if (game.time.now > bulletTimer) {
+      //   let BULLET_SPEED = 400
+      //   let BULLET_SPACING = 250
+      //
+      //   for (let i = 0; i < 3; i++){
+      //     let bullet = bullets.getFirstExists(false)
+      //     if (bullet){
+      //
+      //       let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+      //       bullet.reset(player.x + bulletOffset, player.y)
+      //
+      //       //create 'spread' for first and third bullets
+      //       let spreadAngle
+      //       if (i === 0) spreadAngle = -20
+      //       if (i === 1) spreadAngle = 0
+      //       if (i === 2) spreadAngle = 20
+      //
+      //       bullet.angle = player.angle + spreadAngle
+      //       game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
+      //       bullet.body.velocity.x += player.body.velocity.x
+      //
+      //       bulletTimer = game.time.now + BULLET_SPACING
+      //     }
+      //   }
+      // }
+      // break;
+      // case 3:
+      // //rapid tri-shot
+      // if (game.time.now > bulletTimer) {
+      //   let BULLET_SPEED = 400
+      //   let BULLET_SPACING = 100
+      //
+      //   for (let i = 0; i < 3; i++){
+      //     let bullet = bullets.getFirstExists(false)
+      //     if (bullet){
+      //
+      //       let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+      //       bullet.reset(player.x + bulletOffset, player.y)
+      //
+      //       //create 'spread' for first and third bullets
+      //       let spreadAngle
+      //       if (i === 0) spreadAngle = -20
+      //       if (i === 1) spreadAngle = 0
+      //       if (i === 2) spreadAngle = 20
+      //
+      //       bullet.angle = player.angle + spreadAngle
+      //       game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
+      //       bullet.body.velocity.x += player.body.velocity.x
+      //
+      //       bulletTimer = game.time.now + BULLET_SPACING
+      //     }
+      //   }
+      // }
     }
   }
 
@@ -520,9 +526,10 @@ document.addEventListener('DOMContentLoaded', function() {
   function shipCollide(player, enemy) {
     enemy.kill()
 
-      clearInterval(intervalID)
-      clearTimeout(timeoutID)
-      timeoutID = setTimeout(shieldRegen, 2000)
+    //reset shieldRegen on ship collide
+    clearInterval(intervalID)
+    clearTimeout(timeoutID)
+    timeoutID = setTimeout(shieldRegen, 2000)
 
     if (player.alive) {
       let explosion = explosions.getFirstExists(false)
@@ -547,14 +554,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function hitEnemy(enemy, bullet) {
+  function hitEnemy(enemy, blueLaser) {
     let explosion = explosions.getFirstExists(false)
-    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight)
+    explosion.reset(blueLaser.body.x + blueLaser.body.halfWidth, blueLaser.body.y + blueLaser.body.halfHeight)
     explosion.body.velocity.y = enemy.body.velocity.y
     explosion.alpha = 0.7
     explosion.play('explosion', 30, false, true)
     enemy.kill()
-    bullet.kill()
+    // bullet.kill()
+    blueLaser.kill()
 
     //increase score
     score += enemy.damageAmount * 10
@@ -571,19 +579,32 @@ document.addEventListener('DOMContentLoaded', function() {
       greenEnemySpacing *=2
     }
     //weapon upgrade on score threshold
-    if (score > 2000 && player.weaponLevel < 2){
-      player.weaponLevel = 2
-    }
-    else if(score > 4000 && player.weaponLevel < 3) {
-    player.weaponLevel = 3
-    }
+    // if (score > 2000 && player.weaponLevel < 2){
+    //   player.weaponLevel = 2
+    // }
+    // else if(score > 4000 && player.weaponLevel < 3) {
+    // player.weaponLevel = 3
+    // }
   }
 
-  function enemyHitsPlayer(player, bullet) {
-    bullet.kill()
+  function enemyHitsPlayer(player, blueLaser) {
+    blueLaser.kill()
 
-    player.damage(bullet.damageAmount)
-    armor.render()
+    //reset shieldRegen on hit
+    clearInterval(intervalID)
+    clearTimeout(timeoutID)
+    timeoutID = setTimeout(shieldRegen, 2000)
+
+    // shields break on player hit with shot
+    if (maxShields > 0) {
+      maxShields = 0
+      shields.render()
+    }
+    else if (maxShields === 0) {
+      player.damage(blueLaser.damageAmount)
+      shields.render()
+      armor.render()
+    }
 
     if (player.alive) {
       let explosion = explosions.getFirstExists(false)
