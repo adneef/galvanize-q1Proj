@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
   let maxShields = 100
   let armor
   let playerDeath
+  let timeoutID
+  let intervalID
 
   //game state variables
   let greenEnemyLaunchTimer
@@ -219,9 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //Game Over text
     gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {font: '84px Impact', fill: '#fff'})
-    // gameOver.anchor.setTo(0.5, 0.5)
-    gameOver.x = gameOver.x - gameOver.textWidth / 2
-    gameOver.y = gameOver.y - gameOver.textHeight / 3
+    gameOver.anchor.setTo(0.5, 0.5)
+    // gameOver.x = gameOver.x - gameOver.textWidth / 2
+    // gameOver.y = gameOver.y - gameOver.textHeight / 3
     gameOver.visible = false
   }
 
@@ -281,6 +283,11 @@ document.addEventListener('DOMContentLoaded', function() {
     game.physics.arcade.overlap(player, blueEnemies, shipCollide, null, this);
     game.physics.arcade.overlap(blueEnemies, bullets, hitEnemy, null, this);
 
+    // if (shipCollide()) {
+    //   clearTimeout(timeoutID)
+    //   setInterval(shieldRegen, 3000)
+    // }
+
     //blue enemy bullet collision
     game.physics.arcade.overlap(blueEnemyBullets, player, enemyHitsPlayer, null, this)
 
@@ -307,12 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    if (maxShields === 0) {
-      function shieldRegen (maxShields) {
-        let timeOutID
-
-      }
-    }
   }
 
   function render() {
@@ -323,6 +324,10 @@ document.addEventListener('DOMContentLoaded', function() {
     //game.debug.body(player)
 
   }
+
+
+  /*Weapons and firing*/
+
 
   function fireBullet() {
     //set a firing rate limit
@@ -515,19 +520,9 @@ document.addEventListener('DOMContentLoaded', function() {
   function shipCollide(player, enemy) {
     enemy.kill()
 
-    let timeoutId
-    clearTimeout(timeoutId)
-
-    // shields break on ship collide
-    if (maxShields > 0) {
-      maxShields = 0
-      timeoutId = setTimeout(shieldRegen, 2000)
-      shields.render()
-    }
-    else if (maxShields === 0) {
-      player.damage(enemy.damageAmount)
-      armor.render()
-    }
+      clearInterval(intervalID)
+      clearTimeout(timeoutID)
+      timeoutID = setTimeout(shieldRegen, 2000)
 
     if (player.alive) {
       let explosion = explosions.getFirstExists(false)
@@ -538,6 +533,17 @@ document.addEventListener('DOMContentLoaded', function() {
       playerDeath.x = player.x
       playerDeath.y = player.y
       playerDeath.start(false, 1000, 10, 10)
+    }
+
+    // shields break on ship collide
+    if (maxShields > 0) {
+      maxShields = 0
+      shields.render()
+    }
+    else if (maxShields === 0) {
+      player.damage(enemy.damageAmount)
+      shields.render()
+      armor.render()
     }
   }
 
@@ -619,13 +625,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //functions for shield regen
   function shieldRegen() {
+    clearInterval(intervalID)
     maxShields = 0
-    let intervalID = setInterval(function(){
-      if(maxShields < 100){
-        maxShields += 5
-        shields.render()
-      } else {
-        clearInterval(intervalID)
+    intervalID = setInterval(function(){
+    if(maxShields < 100){
+      maxShields += 5
+      shields.render()
+    } else {
+      clearInterval(intervalID)
       }
     }, 100)
   }
