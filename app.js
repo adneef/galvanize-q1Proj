@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //initialize the game using the Phaser game engine library
 
-  let game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo', {
+  let game = new Phaser.Game(800, 600, Phaser.AUTO, 'Space Scroller', {
     preload: preload,
     create: create,
     update: update,
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let MAXSPEED = 400;
 
   //variables for effects
-  let blueLaser
+  let greenLaser
   let bank
   let bullets
   let bulletTimer = 0
@@ -60,13 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function preload() {
     game.load.image('starfield', 'assets/starfield.png');
-    game.load.image('ship', 'assets/player.png');
+    game.load.image('ship', 'newAssets/redPlayer.png');
     game.load.image('bullet', 'assets/bullet.png')
     game.load.image('enemy-green', 'assets/enemy-green.png')
     game.load.image('blueEnemyBullet', 'assets/enemy-blue-bullet.png')
     game.load.image('enemy-blue', 'assets/enemy-blue.png')
     game.load.spritesheet('explosion', 'assets/explode.png', 128, 128)
-    game.load.image('blue-laser', 'newAssets/blue-bullet.png')
+    game.load.image('green-laser', 'newAssets/green-laser.png')
+    game.load.image('teal-laser', 'newAssets/teal-laser.png')
+    game.load.image('red-laser', 'newAssets/red-laser.png')
   }
 
   function create() {
@@ -75,16 +77,16 @@ document.addEventListener('DOMContentLoaded', function() {
     starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
 
     //Blue laser pool - weapon level 1
-    blueLaser = game.add.group()
-    blueLaser.enableBody = true
-    blueLaser.physicsBodyType = Phaser.Physics.ARCADE
-    blueLaser.createMultiple(30, 'blue-laser')
-    blueLaser.setAll('anchor.x', 0.5)
-    blueLaser.setAll('anchor.y', 1)
-    blueLaser.setAll('outOfBoundsKill', true)
-    blueLaser.setAll('checkWorldBounds', true)
+    greenLaser = game.add.group()
+    greenLaser.enableBody = true
+    greenLaser.physicsBodyType = Phaser.Physics.ARCADE
+    greenLaser.createMultiple(30, 'green-laser')
+    greenLaser.setAll('anchor.x', 0.5)
+    greenLaser.setAll('anchor.y', 1)
+    greenLaser.setAll('outOfBoundsKill', true)
+    greenLaser.setAll('checkWorldBounds', true)
 
-    //Bullet pool - now only for player ship emitter
+    //Bullet pool - now only for player ship
     bullets = game.add.group()
     bullets.enableBody = true
     bullets.physicsBodyType = Phaser.Physics.ARCADE
@@ -261,6 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
       player.x = game.width - 50,
         player.body.acceleration.x = 0;
     }
+
     if (player.x < 50) {
       player.x = 50,
         player.body.acceleration.x = 0;
@@ -566,44 +569,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //pacing
     //enemies come quicker as score increases
-    greenEnemySpacing *= 0.9
+    greenEnemySpacing *= 0.8
     //blue enemies come in after score reaches 1000
     if(!blueEnemyLaunched && score > 1000) {
       blueEnemyLaunched = true
       launchBlueEnemy()
       //slow green enemies as blues start to show up
-      greenEnemySpacing *=2
+      greenEnemySpacing *=1.8
     }
     //weapon upgrade on score threshold
-    // if (score > 2000 && player.weaponLevel < 2){
-    //   player.weaponLevel = 2
-    // }
-    // else if(score > 4000 && player.weaponLevel < 3) {
-    // player.weaponLevel = 3
-    // }
+    if (score > 2000 && player.weaponLevel < 2){
+      player.weaponLevel = 2
+    }
+    else if(score > 4000 && player.weaponLevel < 3) {
+    player.weaponLevel = 3
+    }
   }
 
   function enemyHitsPlayer(player, bullet) {
     bullet.kill()
 
     //reset shieldRegen on hit
-    // clearInterval(intervalID)
-    // clearTimeout(timeoutID)
-    // timeoutID = setTimeout(shieldRegen, 2000)
+    clearInterval(intervalID)
+    clearTimeout(timeoutID)
+    timeoutID = setTimeout(shieldRegen, 2000)
 
     // shields break on player hit with shot
-    // if (maxShields > 0) {
-    //   maxShields = 0
-    //   shields.render()
-    // }
-    // else if (maxShields === 0) {
-    //
-    //   shields.render()
-    //
-    // }
-
-    player.damage(bullet.damageAmount)
-    armor.render()
+    if (maxShields > 0) {
+      maxShields = 0
+      shields.render()
+    }
+    else if (maxShields === 0) {
+      player.damage(bullet.damageAmount)
+      shields.render()
+      armor.render()
+    }
 
     if (player.alive) {
       let explosion = explosions.getFirstExists(false)
@@ -639,6 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //hide 'game over' text
     gameOver.visible = false
 
+    // reset pacing
     greenEnemySpacing = 1000
     blueEnemyLaunched = false
   }
