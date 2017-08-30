@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //initialize the game using the Phaser game engine library
 
-  let game = new Phaser.Game(800, 600, Phaser.AUTO, 'Space Scroller', {
+  let game = new Phaser.Game(800, 620, Phaser.AUTO, 'Space Scroller', {
     preload: preload,
     create: create,
     update: update,
@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //variables for background and character sprites
   let player
+  let bluePlanet
+  let blueStart = true
   let starfield
   let shipTrail
 
@@ -35,7 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
   let MAXSPEED = 400;
 
   //variables for effects
-  let greenLaser
+  let greenLasers
+  let tealLasers
+  let redLasers
+  let yellowLasers
   let bank
   let bullets
   let bulletTimer = 0
@@ -54,11 +59,15 @@ document.addEventListener('DOMContentLoaded', function() {
   let greenEnemySpacing = 1000
   let blueEnemyLaunchTimer
   let blueEnemyLaunched = false
+  let blueEnemySpacing = 2500
+  let numBlueEnemiesInWave = 5
+  let waveIncrease = 0
   let gameOver
   let score = 0
   let scoreText
 
   function preload() {
+    game.load.image('bluePlanet', 'newAssets/bluePlanetExtendedClear.png')
     game.load.image('starfield', 'assets/starfield.png');
     game.load.image('ship', 'newAssets/redPlayer.png');
     game.load.image('bullet', 'assets/bullet.png')
@@ -69,24 +78,58 @@ document.addEventListener('DOMContentLoaded', function() {
     game.load.image('green-laser', 'newAssets/green-laser.png')
     game.load.image('teal-laser', 'newAssets/teal-laser.png')
     game.load.image('red-laser', 'newAssets/red-laser.png')
+    game.load.image('yellow-laser', 'newAssets/yellow-laser.png')
   }
 
   function create() {
 
     //Scrolling starfield
-    starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
+    starfield = game.add.tileSprite(0, 0, 800, 620, 'starfield');
 
-    //Blue laser pool - weapon level 1
-    greenLaser = game.add.group()
-    greenLaser.enableBody = true
-    greenLaser.physicsBodyType = Phaser.Physics.ARCADE
-    greenLaser.createMultiple(30, 'green-laser')
-    greenLaser.setAll('anchor.x', 0.5)
-    greenLaser.setAll('anchor.y', 1)
-    greenLaser.setAll('outOfBoundsKill', true)
-    greenLaser.setAll('checkWorldBounds', true)
+    // Blue planet background
+    bluePlanet = game.add.tileSprite(0, 0, 800, 620, 'bluePlanet')
 
-    //Bullet pool - now only for player ship
+    //Green laser pool - weapon level 1
+    greenLasers = game.add.group()
+    greenLasers.enableBody = true
+    greenLasers.physicsBodyType = Phaser.Physics.ARCADE
+    greenLasers.createMultiple(30, 'green-laser')
+    greenLasers.setAll('anchor.x', 0.5)
+    greenLasers.setAll('anchor.y', 1)
+    greenLasers.setAll('outOfBoundsKill', true)
+    greenLasers.setAll('checkWorldBounds', true)
+
+    //Green laser pool - weapon level 2
+    tealLasers = game.add.group()
+    tealLasers.enableBody = true
+    tealLasers.physicsBodyType = Phaser.Physics.ARCADE
+    tealLasers.createMultiple(30, 'teal-laser')
+    tealLasers.setAll('anchor.x', 0.5)
+    tealLasers.setAll('anchor.y', 1)
+    tealLasers.setAll('outOfBoundsKill', true)
+    tealLasers.setAll('checkWorldBounds', true)
+
+    //Green laser pool - weapon level 3
+    redLasers = game.add.group()
+    redLasers.enableBody = true
+    redLasers.physicsBodyType = Phaser.Physics.ARCADE
+    redLasers.createMultiple(30, 'red-laser')
+    redLasers.setAll('anchor.x', 0.5)
+    redLasers.setAll('anchor.y', 1)
+    redLasers.setAll('outOfBoundsKill', true)
+    redLasers.setAll('checkWorldBounds', true)
+
+    //Yellow laser pool
+    yellowLasers = game.add.group()
+    yellowLasers.enableBody = true
+    yellowLasers.physicsBodyType = Phaser.Physics.ARCADE
+    yellowLasers.createMultiple(60, 'yellow-laser')
+    yellowLasers.setAll('anchor.x', 0.5)
+    yellowLasers.setAll('anchor.y', 1)
+    yellowLasers.setAll('outOfBoundsKill', true)
+    yellowLasers.setAll('checkWorldBounds', true)
+
+    //Bullet pool - now only for player ship emitter trail
     bullets = game.add.group()
     bullets.enableBody = true
     bullets.physicsBodyType = Phaser.Physics.ARCADE
@@ -240,8 +283,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function update() {
 
+    // scroll the planet
+    if (blueStart === true) {
+      bluePlanet.tilePosition.y = 450
+      blueStart = false
+    } else {
+    bluePlanet.tilePosition.y += .1;
+    }
+
     //scroll the starfield
-    starfield.tilePosition.y += 2;
+    starfield.tilePosition.y += 3
 
     //reset player physics to still when key controls are released
     player.body.acceleration.x = 0
@@ -290,9 +341,17 @@ document.addEventListener('DOMContentLoaded', function() {
     //Check collisions
     game.physics.arcade.overlap(player, greenEnemies, shipCollide, null, this)
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this)
+    game.physics.arcade.overlap(greenEnemies, greenLasers, hitEnemy, null, this)
+    game.physics.arcade.overlap(greenEnemies, tealLasers, hitEnemy, null, this)
+    game.physics.arcade.overlap(greenEnemies, redLasers, hitEnemy, null, this)
+    game.physics.arcade.overlap(greenEnemies, yellowLasers, hitEnemy, null, this)
 
     game.physics.arcade.overlap(player, blueEnemies, shipCollide, null, this);
     game.physics.arcade.overlap(blueEnemies, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(blueEnemies, greenLasers, hitEnemy, null, this);
+    game.physics.arcade.overlap(blueEnemies, tealLasers, hitEnemy, null, this);
+    game.physics.arcade.overlap(blueEnemies, redLasers, hitEnemy, null, this);
+    game.physics.arcade.overlap(blueEnemies, yellowLasers, hitEnemy, null, this)
 
     //blue enemy bullet collision
     game.physics.arcade.overlap(blueEnemyBullets, player, enemyHitsPlayer, null, this)
@@ -347,45 +406,47 @@ document.addEventListener('DOMContentLoaded', function() {
         let BULLET_SPACING = 250
 
         //grab the first bullet from the pool
-        let bullet = bullets.getFirstExists(false)
+        let greenLaser = greenLasers.getFirstExists(false)
 
-        if (bullet) {
+        if (greenLaser) {
 
           //then fire
 
           //do math to make bullets fire at correct angle from tip of ship
           let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-          bullet.reset(player.x + bulletOffset, player.y)
-          bullet.angle = player.angle
-          game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET_SPEED, bullet.body.velocity)
-          bullet.body.velocity.x += player.body.velocity.x
+          greenLaser.reset(player.x + bulletOffset, player.y)
+          greenLaser.angle = player.angle
+          game.physics.arcade.velocityFromAngle(greenLaser.angle - 90, BULLET_SPEED, greenLaser.body.velocity)
+          greenLaser.body.velocity.x += player.body.velocity.x
 
           bulletTimer = game.time.now + BULLET_SPACING
         }
       }
       break;
       case 2:
-      //tri-shot
+      //bi-shot
       if (game.time.now > bulletTimer) {
         let BULLET_SPEED = 400
         let BULLET_SPACING = 250
 
-        for (let i = 0; i < 3; i++){
-          let bullet = bullets.getFirstExists(false)
-          if (bullet){
+        for (let i = 0; i < 2; i++){
+
+          let tealLaser = tealLasers.getFirstExists(false)
+
+          if (tealLaser){
 
             let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            bullet.reset(player.x + bulletOffset, player.y)
+            tealLaser.reset(player.x + bulletOffset, player.y)
 
             //create 'spread' for first and third bullets
             let spreadAngle
-            if (i === 0) spreadAngle = -20
-            if (i === 1) spreadAngle = 0
-            if (i === 2) spreadAngle = 20
+            if (i === 0) spreadAngle = -2.5
+            if (i === 1) spreadAngle = 2.5
+            // if (i === 2) spreadAngle = 5
 
-            bullet.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
-            bullet.body.velocity.x += player.body.velocity.x
+            tealLaser.angle = player.angle + spreadAngle
+            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, tealLaser.body.velocity)
+            tealLaser.body.velocity.x += player.body.velocity.x
 
             bulletTimer = game.time.now + BULLET_SPACING
           }
@@ -393,27 +454,61 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       break;
       case 3:
-      //rapid tri-shot
+      //tri-shot
       if (game.time.now > bulletTimer) {
         let BULLET_SPEED = 400
-        let BULLET_SPACING = 100
+        let BULLET_SPACING = 200
 
         for (let i = 0; i < 3; i++){
-          let bullet = bullets.getFirstExists(false)
-          if (bullet){
+
+          let redLaser = redLasers.getFirstExists(false)
+
+          if (redLaser){
 
             let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            bullet.reset(player.x + bulletOffset, player.y)
+            redLaser.reset(player.x + bulletOffset, player.y)
 
             //create 'spread' for first and third bullets
             let spreadAngle
-            if (i === 0) spreadAngle = -20
+            if (i === 0) spreadAngle = -5
             if (i === 1) spreadAngle = 0
-            if (i === 2) spreadAngle = 20
+            if (i === 2) spreadAngle = 5
 
-            bullet.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, bullet.body.velocity)
-            bullet.body.velocity.x += player.body.velocity.x
+            redLaser.angle = player.angle + spreadAngle
+            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, redLaser.body.velocity)
+            redLaser.body.velocity.x += player.body.velocity.x
+
+            bulletTimer = game.time.now + BULLET_SPACING
+          }
+        }
+      }
+      break;
+      case 4:
+      //penta-shot
+      if (game.time.now > bulletTimer) {
+        let BULLET_SPEED = 400
+        let BULLET_SPACING = 200
+
+        for (let i = 0; i < 5; i++){
+
+          let yellowLaser = yellowLasers.getFirstExists(false)
+
+          if (yellowLaser){
+
+            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+            yellowLaser.reset(player.x + bulletOffset, player.y)
+
+            //create 'spread' for first and third bullets
+            let spreadAngle
+            if (i === 0) spreadAngle = 15
+            if (i === 1) spreadAngle = 7.5
+            if (i === 2) spreadAngle = 0
+            if (i === 3) spreadAngle = -7.5
+            if (i === 4) spreadAngle = -15
+
+            yellowLaser.angle = player.angle + spreadAngle
+            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, yellowLaser.body.velocity)
+            yellowLaser.body.velocity.x += player.body.velocity.x
 
             bulletTimer = game.time.now + BULLET_SPACING
           }
@@ -461,11 +556,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let spread = 60
     let frequency = 70
     let verticalSpacing = 70
-    let numEnemiesInWave = 5
-    let timeBetweenWaves = 2500
+    numBlueEnemiesInWave
 
     //launch wave
-    for (var i = 0; i < numEnemiesInWave; i++) {
+    for (var i = 0; i < numBlueEnemiesInWave; i++) {
       let enemy = blueEnemies.getFirstExists(false)
       if (enemy) {
         enemy.startingX = startingX
@@ -509,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     //launch next wave of blue enemies
-    blueEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 1000), launchBlueEnemy)
+    blueEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(blueEnemySpacing, blueEnemySpacing + 1000), launchBlueEnemy)
   }
 
   function addEnemyEmitterTrail(enemy) {
@@ -577,12 +671,28 @@ document.addEventListener('DOMContentLoaded', function() {
       //slow green enemies as blues start to show up
       greenEnemySpacing *=1.8
     }
+    if(blueEnemyLaunched && score > 49999 && score < 50201) {
+      console.log('Wave Increase');
+      numBlueEnemiesInWave += 1
+    }
+    if(blueEnemyLaunched && score > 149999 && score < 150201) {
+      console.log('Wave Increase');
+      numBlueEnemiesInWave += 1
+    }
+    if(blueEnemyLaunched && score > 249999 && score < 250201) {
+      console.log('Wave Increase');
+      numBlueEnemiesInWave += 1
+    }
+
     //weapon upgrade on score threshold
-    if (score > 2000 && player.weaponLevel < 2){
+    if (score > 5000 && player.weaponLevel < 2){
       player.weaponLevel = 2
     }
-    else if(score > 4000 && player.weaponLevel < 3) {
+    else if(score > 45000 && player.weaponLevel < 3) {
     player.weaponLevel = 3
+    }
+    else if(score > 199000){
+      player.weaponLevel = 4
     }
   }
 
@@ -642,6 +752,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // reset pacing
     greenEnemySpacing = 1000
     blueEnemyLaunched = false
+    blueEnemySpacing = 2500
+    numBlueEnemiesInWave = 5
   }
 
   //functions for shield regen
