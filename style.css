@@ -1,5 +1,5 @@
 body {
-  background-image: url('newAssets/seamlessSpace.png');
+  background-image: url('newAssets/spaceScrollerArcadeBox.png');
 }
 div {
   text-align: center;
@@ -19,5 +19,5 @@ canvas {
     bottom: 0;
     left: 0;
     right: 0;
-    border: 1px solid grey;
+    border: 1px solid rgb(61, 61, 61);
 }
