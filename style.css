@@ -1,0 +1,23 @@
+body {
+  background-image: url('newAssets/seamlessSpace.png');
+}
+div {
+  text-align: center;
+  font-family: Impact;
+  font-size: 50px;
+  color: #fff;
+}
+
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 800px;
+    height: 600px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 1px solid grey;
+}

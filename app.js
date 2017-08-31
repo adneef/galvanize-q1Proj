@@ -5,12 +5,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //initialize the game using the Phaser game engine library
 
-  let game = new Phaser.Game(800, 620, Phaser.AUTO, 'Space Scroller', {
+  let game = new Phaser.Game(800, 620, Phaser.AUTO, 'arcadeBox', {
     preload: preload,
     create: create,
     update: update,
     render: render
   });
+
+  // let arcadeBox = document.querySelector('#arcadeBox')
+  // arcadeBox.appendChild(game)
 
   //global variables
 
@@ -19,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let bluePlanet
   let blueStart = true
   let starfield
+  // let starfield2
   let shipTrail
 
   //enemies
@@ -30,6 +34,15 @@ document.addEventListener('DOMContentLoaded', function() {
   let cursors
   let wasd
   let fireButton
+  let pause
+  let pauseText
+  let welcomeText
+  let instructionsText
+  let altMoveText
+  let goalText
+  let progText
+  let progText2
+  let toastText
 
   //variables for player Physics
   let ACCLERATION = 600;
@@ -69,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function preload() {
     game.load.image('bluePlanet', 'newAssets/bluePlanetExtendedClear.png')
     game.load.image('starfield', 'assets/starfield.png');
+    // game.load.image('starfield2', 'newAssets/starfieldClear')
     game.load.image('ship', 'newAssets/redPlayer.png');
     game.load.image('bullet', 'assets/bullet.png')
     game.load.image('enemy-green', 'assets/enemy-green.png')
@@ -86,8 +100,41 @@ document.addEventListener('DOMContentLoaded', function() {
     //Scrolling starfield
     starfield = game.add.tileSprite(0, 0, 800, 620, 'starfield');
 
+    //faster scrolling starfield
+    // starfield2 = game.add.tileSprite(0, 0, 800, 620, 'starfield2')
+
     // Blue planet background
     bluePlanet = game.add.tileSprite(0, 0, 800, 620, 'bluePlanet')
+
+    //pause game on load so you're not immediately dropped in to the action
+    game.paused = true
+    welcomeText = game.add.text(800/2, 75, 'Welcome to Space Scroller!', {font: '36px Impact', fill: '#32cd32'})
+    welcomeText.text = 'Welcome to Space Scroller!'
+    welcomeText.anchor.setTo(0.5, 0.5)
+
+    instructionsText = game.add.text(800/2, 150, 'Use the mouse to move and shoot.', {font: '30px Impact', fill: '#32cd32'})
+    instructionsText.text = 'Use the mouse to move and shoot.'
+    instructionsText.anchor.setTo(0.5, 0.5)
+
+    altMoveText = game.add.text(800/2, 180, 'Or drag the mouse off the screen and use a/d or arrows left/right and spacebar to shoot.', {font: '30px Impact', fill: '#32cd32'})
+    altMoveText.text = 'Or use a/d or arrows left/right and spacebar to shoot.'
+    altMoveText.anchor.setTo(0.5, 0.5)
+
+    goalText = game.add.text(800/2, 255, 'The goal is to get the highest score possible.', {font: '30px Impact', fill: '#32cd32'})
+    goalText.text = 'The goal is to get the highest score possible.'
+    goalText.anchor.setTo(0.5, 0.5)
+
+    progText = game.add.text(800/2, 330, 'As score increases,', {font: '30px Impact', fill: '#32cd32'})
+    progText.text = 'As score increases,'
+    progText.anchor.setTo(0.5, 0.5)
+
+    progText2 = game.add.text(800/2, 360, 'weapons ugprade and enemies spawn more often.', {font: '30px Impact', fill: '#32cd32'})
+    progText2.text = 'weapons ugprade and enemies spawn more often.'
+    progText2.anchor.setTo(0.5, 0.5)
+
+    toastText = game.add.text(800/2, 550, 'Good luck, Survivor!', {font: '30px Impact', fill: '#32cd32'})
+    toastText.text = 'Good luck, Survivor!'
+    toastText.anchor.setTo(0.5, 0.5)
 
     //Green laser pool - weapon level 1
     greenLasers = game.add.group()
@@ -289,6 +336,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     scoreText.render()
 
+    //pause screen
+    //on screen pause button creation and function
+    pause = game.add.text(10, 35, 'Pause', {font: '24px Impact', fill: '#fff'})
+    pause.text = 'Pause'
+    pause.inputEnabled = true
+    pause.events.onInputUp.add(function(){
+      game.paused = true
+
+      pauseText = game.add.text(800/2, 620/2, 'Paused', {font: '36px Impact', fill: '#fff'})
+      pauseText.text = 'Paused'
+      pauseText.anchor.setTo(0.5, 0.5)
+    })
+
+
+    game.input.onDown.add(unpause, self)
+
+    // function gameStart(){
+    //   if(game.paused && welcomeText.text === 'Welcome to Space Scroller!')
+    // }
+
+    function unpause() {
+      if(game.paused && welcomeText.text === 'Welcome to Space Scroller!'){
+        welcomeText.destroy()
+        instructionsText.destroy()
+        altMoveText.destroy()
+        goalText.destroy()
+        progText.destroy()
+        progText2.destroy()
+        toastText.destroy()
+        game.paused = false
+      }
+      else if (game.paused){
+        pauseText.destroy()
+        game.paused = false
+      }
+    }
+
     //Game Over text
     gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {
       font: '84px Impact',
@@ -308,8 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
       bluePlanet.tilePosition.y += .1;
     }
 
+    // //scroll clear starfield, layer 2
+    // starfield2.tilePosition += 5
+
     //scroll the starfield
-    starfield.tilePosition.y += 3
+    starfield.tilePosition.y += 2
 
     //reset player physics to still when key controls are released
     player.body.acceleration.x = 0
