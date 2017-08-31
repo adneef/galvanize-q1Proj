@@ -187,13 +187,18 @@ document.addEventListener('DOMContentLoaded', function() {
     blueEnemyBullets.enableBody = true
     blueEnemyBullets.physicsBodyType = Phaser.Physics.ARCADE
     blueEnemyBullets.createMultiple(30, 'blueEnemyBullet')
-    blueEnemyBullets.callAll('crop', null, {x: 90, y: 0, width: 90, height: 70})
+    blueEnemyBullets.callAll('crop', null, {
+      x: 90,
+      y: 0,
+      width: 90,
+      height: 70
+    })
     blueEnemyBullets.setAll('alpha', 0.9)
     blueEnemyBullets.setAll('anchor.x', 0.5)
     blueEnemyBullets.setAll('anchor.y', 0.5)
     blueEnemyBullets.setAll('outOfBoundsKill', true)
     blueEnemyBullets.setAll('checkWorldBounds', true)
-    blueEnemyBullets.forEach(function(enemy){
+    blueEnemyBullets.forEach(function(enemy) {
       enemy.body.setSize(20, 20)
     })
 
@@ -207,8 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
     blueEnemies.setAll('scale.x', 0.5);
     blueEnemies.setAll('scale.y', 0.5);
     blueEnemies.setAll('angle', 180);
-    blueEnemies.forEach(function(enemy){
-        enemy.damageAmount = 40;
+    blueEnemies.forEach(function(enemy) {
+      enemy.damageAmount = 40;
     });
 
     //player controls for arrows and wasd
@@ -255,28 +260,40 @@ document.addEventListener('DOMContentLoaded', function() {
     playerDeath.setScale(0.1, 0.6, 0.1, 0.6, 1000, Phaser.Easing.Quintic.Out)
 
     //armor stat
-    armor = game.add.text(game.world.width - 150, 10, 'Armor: ' + player.health, {font: '20px Impact', fill: '#fff'})
+    armor = game.add.text(game.world.width - 150, 10, 'Armor: ' + player.health, {
+      font: '20px Impact',
+      fill: '#fff'
+    })
     armor.render = function() {
       armor.text = 'Armor: ' + Math.max(player.health, 0)
     }
     armor.render()
 
     //Shields stat
-    shields = game.add.text(game.world.width - 150, 35, 'Shields: ' + maxShields + '%', {font: '20px Impact', fill: '#fff'})
+    shields = game.add.text(game.world.width - 150, 35, 'Shields: ' + maxShields + '%', {
+      font: '20px Impact',
+      fill: '#fff'
+    })
     shields.render = function() {
       shields.text = 'Shields: ' + Math.max(maxShields, 0) + '%'
     }
     shields.render()
 
     //score
-    scoreText = game.add.text(10, 10, '', { font: '20px Impact', fill: '#fff'})
+    scoreText = game.add.text(10, 10, '', {
+      font: '20px Impact',
+      fill: '#fff'
+    })
     scoreText.render = function() {
       scoreText.text = 'Score: ' + score
     }
     scoreText.render()
 
     //Game Over text
-    gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {font: '84px Impact', fill: '#fff'})
+    gameOver = game.add.text(game.world.centerX, game.world.centerY, 'Game Over', {
+      font: '84px Impact',
+      fill: '#fff'
+    })
     gameOver.anchor.setTo(0.5, 0.5)
     gameOver.visible = false
   }
@@ -288,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
       bluePlanet.tilePosition.y = 450
       blueStart = false
     } else {
-    bluePlanet.tilePosition.y += .1;
+      bluePlanet.tilePosition.y += .1;
     }
 
     //scroll the starfield
@@ -400,120 +417,120 @@ document.addEventListener('DOMContentLoaded', function() {
     switch (player.weaponLevel) {
       case 1:
 
-      if (game.time.now > bulletTimer) {
+        if (game.time.now > bulletTimer) {
 
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 250
+          let BULLET_SPEED = 400
+          let BULLET_SPACING = 250
 
-        //grab the first bullet from the pool
-        let greenLaser = greenLasers.getFirstExists(false)
+          //grab the first bullet from the pool
+          let greenLaser = greenLasers.getFirstExists(false)
 
-        if (greenLaser) {
+          if (greenLaser) {
 
-          //then fire
+            //then fire
 
-          //do math to make bullets fire at correct angle from tip of ship
-          let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-          greenLaser.reset(player.x + bulletOffset, player.y)
-          greenLaser.angle = player.angle
-          game.physics.arcade.velocityFromAngle(greenLaser.angle - 90, BULLET_SPEED, greenLaser.body.velocity)
-          greenLaser.body.velocity.x += player.body.velocity.x
+            //do math to make bullets fire at correct angle from tip of ship
+            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+            greenLaser.reset(player.x + bulletOffset, player.y)
+            greenLaser.angle = player.angle
+            game.physics.arcade.velocityFromAngle(greenLaser.angle - 90, BULLET_SPEED, greenLaser.body.velocity)
+            greenLaser.body.velocity.x += player.body.velocity.x
 
-          bulletTimer = game.time.now + BULLET_SPACING
+            bulletTimer = game.time.now + BULLET_SPACING
+          }
         }
-      }
-      break;
+        break;
       case 2:
-      //bi-shot
-      if (game.time.now > bulletTimer) {
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 250
+        //bi-shot
+        if (game.time.now > bulletTimer) {
+          let BULLET_SPEED = 400
+          let BULLET_SPACING = 250
 
-        for (let i = 0; i < 2; i++){
+          for (let i = 0; i < 2; i++) {
 
-          let tealLaser = tealLasers.getFirstExists(false)
+            let tealLaser = tealLasers.getFirstExists(false)
 
-          if (tealLaser){
+            if (tealLaser) {
 
-            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            tealLaser.reset(player.x + bulletOffset, player.y)
+              let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+              tealLaser.reset(player.x + bulletOffset, player.y)
 
-            //create 'spread' for first and third bullets
-            let spreadAngle
-            if (i === 0) spreadAngle = -2.5
-            if (i === 1) spreadAngle = 2.5
-            // if (i === 2) spreadAngle = 5
+              //create 'spread' for first and third bullets
+              let spreadAngle
+              if (i === 0) spreadAngle = -2.5
+              if (i === 1) spreadAngle = 2.5
+              // if (i === 2) spreadAngle = 5
 
-            tealLaser.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, tealLaser.body.velocity)
-            tealLaser.body.velocity.x += player.body.velocity.x
+              tealLaser.angle = player.angle + spreadAngle
+              game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, tealLaser.body.velocity)
+              tealLaser.body.velocity.x += player.body.velocity.x
 
-            bulletTimer = game.time.now + BULLET_SPACING
+              bulletTimer = game.time.now + BULLET_SPACING
+            }
           }
         }
-      }
-      break;
+        break;
       case 3:
-      //tri-shot
-      if (game.time.now > bulletTimer) {
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 200
+        //tri-shot
+        if (game.time.now > bulletTimer) {
+          let BULLET_SPEED = 400
+          let BULLET_SPACING = 200
 
-        for (let i = 0; i < 3; i++){
+          for (let i = 0; i < 3; i++) {
 
-          let redLaser = redLasers.getFirstExists(false)
+            let redLaser = redLasers.getFirstExists(false)
 
-          if (redLaser){
+            if (redLaser) {
 
-            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            redLaser.reset(player.x + bulletOffset, player.y)
+              let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+              redLaser.reset(player.x + bulletOffset, player.y)
 
-            //create 'spread' for first and third bullets
-            let spreadAngle
-            if (i === 0) spreadAngle = -5
-            if (i === 1) spreadAngle = 0
-            if (i === 2) spreadAngle = 5
+              //create 'spread' for first and third bullets
+              let spreadAngle
+              if (i === 0) spreadAngle = -5
+              if (i === 1) spreadAngle = 0
+              if (i === 2) spreadAngle = 5
 
-            redLaser.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, redLaser.body.velocity)
-            redLaser.body.velocity.x += player.body.velocity.x
+              redLaser.angle = player.angle + spreadAngle
+              game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, redLaser.body.velocity)
+              redLaser.body.velocity.x += player.body.velocity.x
 
-            bulletTimer = game.time.now + BULLET_SPACING
+              bulletTimer = game.time.now + BULLET_SPACING
+            }
           }
         }
-      }
-      break;
+        break;
       case 4:
-      //penta-shot
-      if (game.time.now > bulletTimer) {
-        let BULLET_SPEED = 400
-        let BULLET_SPACING = 200
+        //penta-shot
+        if (game.time.now > bulletTimer) {
+          let BULLET_SPEED = 400
+          let BULLET_SPACING = 200
 
-        for (let i = 0; i < 5; i++){
+          for (let i = 0; i < 5; i++) {
 
-          let yellowLaser = yellowLasers.getFirstExists(false)
+            let yellowLaser = yellowLasers.getFirstExists(false)
 
-          if (yellowLaser){
+            if (yellowLaser) {
 
-            let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
-            yellowLaser.reset(player.x + bulletOffset, player.y)
+              let bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle))
+              yellowLaser.reset(player.x + bulletOffset, player.y)
 
-            //create 'spread' for first and third bullets
-            let spreadAngle
-            if (i === 0) spreadAngle = 15
-            if (i === 1) spreadAngle = 7.5
-            if (i === 2) spreadAngle = 0
-            if (i === 3) spreadAngle = -7.5
-            if (i === 4) spreadAngle = -15
+              //create 'spread' for first and third bullets
+              let spreadAngle
+              if (i === 0) spreadAngle = 15
+              if (i === 1) spreadAngle = 7.5
+              if (i === 2) spreadAngle = 0
+              if (i === 3) spreadAngle = -7.5
+              if (i === 4) spreadAngle = -15
 
-            yellowLaser.angle = player.angle + spreadAngle
-            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, yellowLaser.body.velocity)
-            yellowLaser.body.velocity.x += player.body.velocity.x
+              yellowLaser.angle = player.angle + spreadAngle
+              game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET_SPEED, yellowLaser.body.velocity)
+              yellowLaser.body.velocity.x += player.body.velocity.x
 
-            bulletTimer = game.time.now + BULLET_SPACING
+              bulletTimer = game.time.now + BULLET_SPACING
+            }
           }
         }
-      }
     }
   }
 
@@ -532,18 +549,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
       //update function to rotate green enemy
       enemy.update = function() {
-      enemy.angle = 180 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y))
+        enemy.angle = 180 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y))
 
-      enemy.trail.x = enemy.x
-      enemy.trail.y = enemy.y - 10
+        enemy.trail.x = enemy.x
+        enemy.trail.y = enemy.y - 10
 
-      //destroy enemies once they go off screen
-      if (enemy.y > game.height + 200) {
-        enemy.kill()
-        enemy.y = -20
+        //destroy enemies once they go off screen
+        if (enemy.y > game.height + 200) {
+          enemy.kill()
+          enemy.y = -20
+        }
       }
     }
-  }
 
     //launch another enemy
     greenEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(greenEnemySpacing, greenEnemySpacing + 1000), launchGreenEnemy)
@@ -556,7 +573,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let spread = 60
     let frequency = 70
     let verticalSpacing = 70
-    numBlueEnemiesInWave
 
     //launch wave
     for (var i = 0; i < numBlueEnemiesInWave; i++) {
@@ -584,10 +600,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
           //firing
           enemyBullet = blueEnemyBullets.getFirstExists(false)
-          if (enemyBullet && this.alive && this.bullets && this.y > game.width / 8 && game.time.now > firingDelay + this.lastShot){
+          if (enemyBullet && this.alive && this.bullets && this.y > game.width / 8 && game.time.now > firingDelay + this.lastShot) {
             this.lastShot = game.time.now
             this.bullets--
-            enemyBullet.reset(this.x, this.y + this.height /2)
+              enemyBullet.reset(this.x, this.y + this.height / 2)
             enemyBullet.damageAmount = this.damageAmount
             let angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed)
             enemyBullet.angle = game.math.radToDeg(angle)
@@ -640,8 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (maxShields > 0) {
       maxShields = 0
       shields.render()
-    }
-    else if (maxShields === 0) {
+    } else if (maxShields === 0) {
       player.damage(enemy.damageAmount)
       shields.render()
       armor.render()
@@ -665,33 +680,31 @@ document.addEventListener('DOMContentLoaded', function() {
     //enemies come quicker as score increases
     greenEnemySpacing *= 0.8
     //blue enemies come in after score reaches 1000
-    if(!blueEnemyLaunched && score > 1000) {
+    if (!blueEnemyLaunched && score > 1000) {
       blueEnemyLaunched = true
       launchBlueEnemy()
       //slow green enemies as blues start to show up
-      greenEnemySpacing *=1.8
+      greenEnemySpacing *= 1.8
     }
-    if(blueEnemyLaunched && score > 49999 && score < 50201) {
+    if (blueEnemyLaunched && score > 49999 && score < 50201) {
       console.log('Wave Increase');
       numBlueEnemiesInWave += 1
     }
-    if(blueEnemyLaunched && score > 149999 && score < 150201) {
+    if (blueEnemyLaunched && score > 149999 && score < 150201) {
       console.log('Wave Increase');
       numBlueEnemiesInWave += 1
     }
-    if(blueEnemyLaunched && score > 249999 && score < 250201) {
+    if (blueEnemyLaunched && score > 249999 && score < 250201) {
       console.log('Wave Increase');
       numBlueEnemiesInWave += 1
     }
 
     //weapon upgrade on score threshold
-    if (score > 5000 && player.weaponLevel < 2){
+    if (score > 3000 && player.weaponLevel < 2) {
       player.weaponLevel = 2
-    }
-    else if(score > 45000 && player.weaponLevel < 3) {
-    player.weaponLevel = 3
-    }
-    else if(score > 199000){
+    } else if (score > 25000 && player.weaponLevel < 3) {
+      player.weaponLevel = 3
+    } else if (score > 100000 && player.weaponLevel < 4) {
       player.weaponLevel = 4
     }
   }
@@ -708,8 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (maxShields > 0) {
       maxShields = 0
       shields.render()
-    }
-    else if (maxShields === 0) {
+    } else if (maxShields === 0) {
       player.damage(bullet.damageAmount)
       shields.render()
       armor.render()
@@ -745,6 +757,8 @@ document.addEventListener('DOMContentLoaded', function() {
     shields.render()
     score = 0
     scoreText.render()
+    blueStart = true
+    bluePlanet.tilePosition.y = 450
 
     //hide 'game over' text
     gameOver.visible = false
@@ -760,12 +774,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function shieldRegen() {
     clearInterval(intervalID)
     maxShields = 0
-    intervalID = setInterval(function(){
-    if(maxShields < 100){
-      maxShields += 5
-      shields.render()
-    } else {
-      clearInterval(intervalID)
+    intervalID = setInterval(function() {
+      if (maxShields < 100) {
+        maxShields += 5
+        shields.render()
+      } else {
+        clearInterval(intervalID)
       }
     }, 100)
   }
