@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
   let bullets
   let bulletTimer = 0
   let explosions
+  let mainTheme
+  let menuTheme
+  let menuUp = true
 
   //variables for player health
   let shields
@@ -93,9 +96,15 @@ document.addEventListener('DOMContentLoaded', function() {
     game.load.image('teal-laser', 'newAssets/teal-laser.png')
     game.load.image('red-laser', 'newAssets/red-laser.png')
     game.load.image('yellow-laser', 'newAssets/yellow-laser.png')
+    game.load.audio('mainTheme', 'newAssets/acción.ogg')
+    game.load.audio('menuTheme', 'newAssets/Blind Shift.mp3')
   }
 
   function create() {
+
+
+    menuTheme = game.add.audio('menuTheme')
+    mainTheme = game.add.audio('mainTheme')
 
     //Scrolling starfield
     starfield = game.add.tileSprite(0, 0, 800, 620, 'starfield');
@@ -108,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //pause game on load so you're not immediately dropped in to the action
     game.paused = true
-    welcomeText = game.add.text(800/2, 75, 'Welcome to Space Scroller!', {font: '36px Impact', fill: '#32cd32'})
-    welcomeText.text = 'Welcome to Space Scroller!'
+    welcomeText = game.add.text(800/2, 75, 'Welcome to Star Blaster!', {font: '36px Impact', fill: '#32cd32'})
+    welcomeText.text = 'Welcome to Star Blaster!'
     welcomeText.anchor.setTo(0.5, 0.5)
 
     instructionsText = game.add.text(800/2, 150, 'Use the mouse to move and shoot.', {font: '30px Impact', fill: '#32cd32'})
@@ -135,6 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
     toastText = game.add.text(800/2, 550, 'Good luck, Survivor!', {font: '30px Impact', fill: '#32cd32'})
     toastText.text = 'Good luck, Survivor!'
     toastText.anchor.setTo(0.5, 0.5)
+
+    musicControl()
 
     //Green laser pool - weapon level 1
     greenLasers = game.add.group()
@@ -352,12 +363,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     game.input.onDown.add(unpause, self)
 
-    // function gameStart(){
-    //   if(game.paused && welcomeText.text === 'Welcome to Space Scroller!')
-    // }
-
     function unpause() {
-      if(game.paused && welcomeText.text === 'Welcome to Space Scroller!'){
+      if(game.paused && welcomeText.text === 'Welcome to Star Blaster!'){
+        welcomeText.text = ''
         welcomeText.destroy()
         instructionsText.destroy()
         altMoveText.destroy()
@@ -365,10 +373,13 @@ document.addEventListener('DOMContentLoaded', function() {
         progText.destroy()
         progText2.destroy()
         toastText.destroy()
+        mainTheme.resume()
         game.paused = false
       }
-      else if (game.paused){
+      else if (game.paused === true){
         pauseText.destroy()
+
+        mainTheme.resume()
         game.paused = false
       }
     }
@@ -869,5 +880,14 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(intervalID)
       }
     }, 100)
+  }
+
+  function musicControl(){
+    //music
+    if (menuUp === true){
+      mainTheme.play()
+    } if (menuUp === false) {
+      mainTheme.resume()
+    }
   }
 })

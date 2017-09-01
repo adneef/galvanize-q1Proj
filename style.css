@@ -1,5 +1,8 @@
 body {
+  background-color: black;
   background-image: url('newAssets/spaceScrollerArcadeBox.png');
+  background-size: 100%, 100%;
+  background-repeat: no-repeat;
 }
 div {
   text-align: center;
